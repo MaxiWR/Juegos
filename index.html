@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>⚽ Ahorcado de Maradona 🇦🇷</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fugaz+One&display=swap');
+
+    body {
+      font-family: 'Fugaz One', cursive;
+      background: linear-gradient(135deg, #cce7ff 0%, #ffffff 100%);
+      color: #063970;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      color: #3c5877;
+      text-shadow: 2px 2px #ffffff;
+    }
+    #word {
+      font-size: 38px;
+      letter-spacing: 12px;
+      margin: 30px 0;
+    }
+    #letter {
+      font-size: 30px;
+      width: 70px;
+      text-align: center;
+      border: 2px solid #1565C0;
+      border-radius: 0.75rem;
+      padding: 6px;
+    }
+    .btn-custom {
+      font-size: 20px;
+      padding: 12px 24px;
+      border-radius: 1rem;
+    }
+    #errors, #remaining, #message {
+      margin-top: 15px;
+      font-size: 22px;
+    }
+    .fade-in {
+      animation: fadeIn 0.6s ease forwards;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+    #maradona-img {
+      width: 140px;
+      border-radius: 50%;
+      border: 4px solid #ffffff;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      margin-top: 15px;
+    }
+    #doggo-img {
+      width: 140px;
+      margin-top: 20px;
+    }
+    .table-responsive {
+      margin-top: 30px;
+    }
+    .table-argentina thead {
+      background-color: #6CCFF6;
+      color: white;
+    }
+    .table-argentina tbody tr:nth-child(even) {
+      background-color: #E0F7FA;
+    }
+    .table-argentina tbody tr:nth-child(odd) {
+      background-color: #FFFFFF;
+    }
+    .table-argentina tbody td, .table-argentina thead th {
+      border: 1px solid #6CCFF6;
+    }
+  </style>
+</head>
+<body class="text-center">
+
+  <h1>⚽ Ahorcado de Maradona 🇦🇷</h1>
+
+  <img id="maradona-img" src="OIP.jpg" alt="Maradona">
+  <div></div>
+  <img id="doggo-img" class="fade-in" src="emoji.png" alt="Maradona">
+
+  <div id="word">_ _ _ _ _</div>
+
+  <div class="d-flex justify-content-center align-items-center gap-3 mb-4 flex-wrap">
+    <input type="text" id="letter" maxlength="1" autofocus>
+    <button class="btn btn-primary btn-custom" onclick="guess()">Probar letra</button>
+  </div>
+
+  <div id="errors" class="text-danger"></div>
+  <div id="remaining" class="fw-bold"></div>
+  <div id="message" class="fw-bold"></div>
+
+  <button id="nextBtn" class="btn btn-success btn-custom mt-3" style="display:none" onclick="nextWord()">Próxima palabra ➡️</button>
+
+  <div id="resultados" class="table-responsive" style="display:none;">
+    <h2 class="mt-4">📊 Resultados Finales</h2>
+    <table class="table table-argentina mt-3">
+      <thead class="table-primary">
+        <tr>
+          <th>Palabra</th>
+          <th>Resultado</th>
+          <th>Intentos restantes</th>
+          <th>Calificación</th>
+        </tr>
+      </thead>
+      <tbody id="tablaBody">
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    function sonIguales(a, b) {
+      const normalizar = letra => letra === "Ó" ? "O" : letra;
+      return normalizar(a) === normalizar(b);
+    }
+
+    const words = ["DIEGO", "NAPOLI", "CÓSMICO", "GAMBETAS", "BARRILETE"];
+    let currentWord = "";
+    let displayWord = "";
+    let errors = [];
+    let remaining = 7;
+    let wordIndex = 0;
+    let resultados = [];
+
+    function startGame() {
+      if (wordIndex >= words.length) {
+        document.getElementById("message").textContent = "¡Juego terminado, papá! 🏆⚽";
+        document.getElementById("word").textContent = "";
+        document.getElementById("letter").style.display = "none";
+        document.querySelector("button[onclick='guess()']").style.display = "none";
+        document.getElementById("nextBtn").style.display = "none";
+        document.getElementById("doggo-img").src = "emoji.png";
+        mostrarTabla();
+        return;
+      }
+
+      currentWord = words[wordIndex];
+      displayWord = "_".repeat(currentWord.length);
+      document.getElementById("word").textContent = displayWord.split("").join(" ");
+      errors = [];
+      remaining = 7;
+      document.getElementById("errors").textContent = "Errores: ";
+      document.getElementById("remaining").textContent = "Intentos restantes: " + remaining;
+      document.getElementById("message").textContent = "";
+      document.getElementById("letter").style.display = "inline";
+      document.querySelector("button[onclick='guess()']").style.display = "inline";
+      document.getElementById("nextBtn").style.display = "none";
+      document.getElementById("doggo-img").src = "emoji.png";
+      document.getElementById("letter").focus();
+    }
+
+    function guess() {
+      const input = document.getElementById("letter");
+      const letter = input.value.toUpperCase();
+      input.value = "";
+      if (!letter.match(/[A-ZÑ]/) || letter.length !== 1) {
+        alert("Ingresá una letra válida.");
+        return;
+      }
+      if (currentWord.split("").some(l => sonIguales(l, letter))) {
+        let newDisplay = "";
+        for (let i = 0; i < currentWord.length; i++) {
+          newDisplay += sonIguales(currentWord[i], letter) ? currentWord[i] : displayWord[i];
+        }
+        displayWord = newDisplay;
+        document.getElementById("word").textContent = displayWord.split("").join(" ");
+        if (displayWord === currentWord) {
+          document.getElementById("message").textContent = "¡Ganaste, genio del fútbol mundial! 🎉⚽";
+          endRound("Ganaste");
+        }
+      } else {
+        if (!errors.includes(letter)) {
+          errors.push(letter);
+          remaining--;
+          document.getElementById("errors").textContent = "Errores: " + errors.join(", ");
+          document.getElementById("remaining").textContent = "Intentos restantes: " + remaining;
+          if (remaining === 0) {
+            document.getElementById("message").textContent = "Perdiste 😢 La palabra era " + currentWord;
+            endRound("Perdiste");
+          }
+        }
+      }
+    }
+
+    function endRound(resultado) {
+      resultados.push({
+        palabra: currentWord,
+        resultado: resultado,
+        intentos: remaining
+      });
+      document.getElementById("letter").style.display = "none";
+      document.querySelector("button[onclick='guess()']").style.display = "none";
+      document.getElementById("nextBtn").style.display = "inline";
+      document.getElementById("doggo-img").src = "emoji.png";
+    }
+
+    function nextWord() {
+      wordIndex++;
+      startGame();
+    }
+
+    function mostrarTabla() {
+      const tablaBody = document.getElementById("tablaBody");
+      tablaBody.innerHTML = "";
+      resultados.forEach(r => {
+        let calificacion = "";
+        if (r.intentos >= 6) {
+          calificacion = "Excelente 🇦🇷";
+        } else if (r.intentos >= 4) {
+          calificacion = "Muy bien 👏";
+        } else if (r.intentos >= 2) {
+          calificacion = "Zafaste 😅";
+        } else {
+          calificacion = "Se te complicó che 😬";
+        }
+
+        const fila = `<tr>
+          <td>${r.palabra}</td>
+          <td>${r.resultado}</td>
+          <td>${r.intentos} de 7</td>
+          <td>${calificacion}</td>
+        </tr>`;
+        tablaBody.innerHTML += fila;
+      });
+
+      document.getElementById("resultados").style.display = "block";
+
+      // Crear y mostrar el botón de siguiente página
+      const botonSiguiente = document.createElement("button");
+      botonSiguiente.textContent = "Ir a la otra página 🌐";
+      botonSiguiente.className = "btn btn-warning btn-custom mt-3";
+      botonSiguiente.onclick = function() {
+        window.location.href = "quiz.html"; // Cambia esto por la URL deseada
+      };
+      document.getElementById("resultados").appendChild(botonSiguiente);
+    }
+
+    document.getElementById("letter").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        guess();
+      }
+    });
+
+    startGame();
+  </script>
+
+</body>
+</html>

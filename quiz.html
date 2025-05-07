@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>🇦🇷 Quiz Argento Interactivo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      font-family: 'Poppins', sans-serif;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      font-size: 60px;
+      text-align: center;
+      margin-bottom: 40px;
+      font-weight: 800;
+      background: linear-gradient(45deg, #007cf0, #00dfd8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+    }
+
+    .card {
+      margin-bottom: 25px;
+      border-radius: 1rem;
+      border: none;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      background: #ffffff;
+    }
+
+    .btn-option {
+      margin: 12px 0;
+      transition: all 0.3s ease;
+      border-radius: 0.8rem;
+      font-size: 20px;
+      padding: 15px;
+      font-weight: 600;
+    }
+
+    .btn-option:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+    }
+
+    .btn-correct {
+      background-color: #34c759 !important;
+      color: #fff !important;
+      border: none;
+    }
+
+    .btn-incorrect {
+      background-color: #ff3b30 !important;
+      color: #fff !important;
+      border: none;
+    }
+
+    .progress {
+      height: 30px;
+      border-radius: 1rem;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .progress-bar {
+      font-size: 18px;
+      line-height: 30px;
+      border-radius: 1rem;
+      transition: width 0.5s ease;
+      font-weight: 600;
+    }
+
+    #result {
+      font-size: 28px;
+      font-weight: 600;
+      margin-top: 40px;
+      text-align: center;
+      padding: 25px;
+      border-radius: 1rem;
+      background: #ffffff;
+      color: #333;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    #result img {
+      margin-top: 25px;
+      max-width: 300px;
+      border-radius: 1rem;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn-final {
+      margin-top: 30px;
+      margin-right: 10px;
+      padding: 12px 20px;
+      font-size: 18px;
+      font-weight: 600;
+      border-radius: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🇦🇷 Quiz Argento</h1>
+
+  <div class="progress mb-4">
+    <div id="progress-bar" class="progress-bar progress-bar-striped bg-info" role="progressbar"
+         style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+  </div>
+
+  <div id="quiz-container" class="container"></div>
+  <div id="result"></div>
+
+  <!-- Imágenes ocultas para mostrar después -->
+  <div style="display:none">
+    <img id="img-perrito10" src="img/perro7.png" alt="10 puntos">
+    <img id="img-aceptable" src="img/perro10.png" alt="Aceptable">
+    <img id="img-regular" src="img/perro1.png" alt="Aceptable">
+    <img id="img-mal" src="img/gato1.png" alt="Mal resultado">
+  </div>
+
+  <script>
+    const preguntas = [
+      { pregunta: "¿Quién le dice a Michael la famosa frase: “Nunca te pongas contra la familia”?", opciones: ["Vito Corleone", "Tom Hagen", "Sonny Corleone", "Clemenza"], respuesta: 2 },
+      { pregunta: "¿Quién escribió 'El Aleph'?", opciones: ["Cortázar", "Borges", "Bioy Casares", "Sábato"], respuesta: 1 },
+      { pregunta: "¿Contra qué selección hizo Maradona su primer gol en un Mundial?", opciones: ["Hungría", "Corea del sur", "Italia", "Bélgica"], respuesta: 3 },
+      { pregunta: "¿Qué animal encuentra el productor de cine en su cama como advertencia?", opciones: ["Una serpiente", "Una cabeza de caballo", "Un gato", "Un cuervo"], respuesta: 1 },
+      { pregunta: "¿Quién era el técnico de Boca Juniors cuando Maradona ganó su único campeonato en el club en 1981?", opciones: ["Silvio Marzolini", "Carlos Bilardo", "César Luis Menotti", "Juan Carlos Lorenzo"], respuesta: 0 },
+      { pregunta: "¿Quién dijo la frase “Es un asunto estrictamente de negocios, no personal.” en El Padrino?", opciones: ["Michael Corleone", "Vito Corleone", "Tom Hagen", "Sonny Corleone"], respuesta: 0 },
+      { pregunta: "¿Cuántos goles hizo Diego en Mundiales con la Selección Argentina?", opciones: ["5", "6", "10", "8"], respuesta: 3 },
+      { pregunta: "¿En qué país se esconde Michael tras asesinar a Sollozzo y al capitán McCluskey?", opciones: ["Francia", "Italia", "Estados Unidos", "Sicilia"], respuesta: 3 },
+      { pregunta: "¿Cuál es el animal nacional?", opciones: ["Cóndor", "Hornero", "Guanaco", "Jaguar"], respuesta: 1 },
+      { pregunta: "¿Qué le pasa a Apollonia, la esposa siciliana de Michael?", opciones: ["Es deportada", "Se fuga con otro", "Es asesinada en un atentado con coche bomba", "Es secuestrada"], respuesta: 2 }
+    ];
+
+    let preguntaActual = 0;
+    let puntaje = 0;
+
+    function mostrarPregunta() {
+      const contenedor = document.getElementById("quiz-container");
+      contenedor.innerHTML = "";
+
+      if (preguntaActual >= preguntas.length) {
+        mostrarResultado();
+        return;
+      }
+
+      actualizarBarra();
+
+      const p = preguntas[preguntaActual];
+      const card = document.createElement("div");
+      card.className = "card p-4";
+
+      const titulo = document.createElement("h4");
+      titulo.textContent = `Pregunta ${preguntaActual + 1}: ${p.pregunta}`;
+      card.appendChild(titulo);
+
+      p.opciones.forEach((opcion, index) => {
+        const btn = document.createElement("button");
+        btn.className = "btn btn-primary btn-option w-100";
+        btn.textContent = opcion;
+        btn.onclick = () => verificarRespuesta(index, btn);
+        card.appendChild(btn);
+      });
+
+      contenedor.appendChild(card);
+    }
+
+    function verificarRespuesta(indiceElegido, boton) {
+      const p = preguntas[preguntaActual];
+      const botones = document.querySelectorAll(".btn-option");
+
+      botones.forEach(b => b.disabled = true);
+
+      if (indiceElegido === p.respuesta) {
+        puntaje++;
+        boton.classList.add("btn-correct");
+      } else {
+        boton.classList.add("btn-incorrect");
+        botones[p.respuesta].classList.add("btn-correct");
+      }
+
+      setTimeout(() => {
+        preguntaActual++;
+        mostrarPregunta();
+      }, 900);
+    }
+
+    function actualizarBarra() {
+      const progreso = ((preguntaActual) / preguntas.length) * 100;
+      const barra = document.getElementById("progress-bar");
+      barra.style.width = `${progreso}%`;
+      barra.setAttribute("aria-valuenow", progreso);
+      barra.textContent = `${Math.round(progreso)}%`;
+    }
+
+    function mostrarResultado() {
+      const contenedor = document.getElementById("quiz-container");
+      contenedor.innerHTML = "";
+
+      const barra = document.getElementById("progress-bar");
+      barra.style.width = `100%`;
+      barra.setAttribute("aria-valuenow", 100);
+      barra.textContent = `100%`;
+
+      const mensaje = document.getElementById("result");
+      let calificacion = "";
+      let imagenId = "";
+
+      if (puntaje === 10) {
+        calificacion = "🥇 Sos pectacular 🥇";
+        imagenId = "img-perrito10";
+      } else if (puntaje >= 7) {
+        calificacion = "👏 Casi casi te da, pero no te dió 🤪";
+        imagenId = "img-aceptable";
+      } else if (puntaje >= 4) {
+        calificacion = "👍🏻 flojito che, que pasó 👎🏻";
+        imagenId = "img-regular";
+      } else {
+        calificacion = "🤦‍♂️ sos un cadaver totalphite horrible 🤦‍♂️";
+        imagenId = "img-mal";
+      }
+
+      mensaje.innerHTML = `✅ Completado: sacaste <strong>${puntaje}</strong> de <strong>${preguntas.length}</strong> puntos.<br>${calificacion}<br>`;
+
+      const imagen = document.getElementById(imagenId).cloneNode(true);
+      imagen.style.display = "block";
+      mensaje.appendChild(imagen);
+
+      // Botones finales
+      const reiniciarBtn = document.createElement("button");
+      reiniciarBtn.textContent = "🔁 Volver a jugar";
+      reiniciarBtn.className = "btn btn-primary btn-final";
+      reiniciarBtn.onclick = () => location.reload();
+      mensaje.appendChild(reiniciarBtn);
+
+      const siguienteBtn = document.createElement("button");
+      siguienteBtn.textContent = "➡️ Ir a la siguiente página";
+      siguienteBtn.className = "btn btn-success btn-final";
+      siguienteBtn.onclick = () => location.href = "final.html"; // Cambiá esto si querés otra página
+      mensaje.appendChild(siguienteBtn);
+    }
+
+    mostrarPregunta();
+  </script>
+
+</body>
+</html>
